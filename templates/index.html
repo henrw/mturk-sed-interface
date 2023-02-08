@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- MTurk -->
+    <script type="text/javascript" src="https://s3.amazonaws.com/mturk-public/externalHIT_v1.js"></script>
+    <!-- BootstrapVue -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-vue/2.19.0/bootstrap-vue.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css"
+        rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-vue/2.19.0/bootstrap-vue.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app" style="padding: 5%; width: 850px;">
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Audio Event Annotation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Please (1) listen to a audio clip and (2) try to write down all the
+                                <strong>events</strong> happened during it.
+                        </p>
+                        <ul>
+                            <li>
+                                An <strong>event</strong> can be anything, such as <em>dog barking, water dribbling, door
+                                    creaking</em>...
+                            </li>
+                            <li>
+                                Don't worry about the wording or tense. For example, "dog barks", "dog barking" and
+                            "dog" are all valid answers. Try to be as comprehensive as possible!
+                            </li>
+                            <li>Feel free to use the thumbnail to get a sense of the context of the audio.</li>
+                        </ul>
+                        <p>Here we provide a few examples:</p>
+                        <div v-for="(example, idx) in examples">
+                            <div class="card">
+                                <div class="card-header">
+                                    Example {{idx+1}}
+                                </div>
+                                <div class="card-body">
+                                    <div class="container">
+                                        <img v-bind:src="src_prefix+example[1]" class="img-thumbnail">
+                                        <audio controls="">
+                                            <source v-bind:src="src_prefix+example[0]" type="audio/mpeg" />
+                                        </audio>
+                                        <div class="tag-container">
+                                            Sample answers:
+                                            <div v-for="text in example[2]" class="tag">{{text}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+                        <p>Need more helps? Please refer to the <a href="https://www.youtube.com/watch?v=F8M9O1cfm10"
+                                target="_blank">demo video</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Please describe the event(s) happened in the following audio.
+                <a href="#" data-toggle="modal" data-target="#exampleModal">[Help?]</a>
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-sm-12 col-md-12">
+                            <img src="${img_url}" class="img-thumbnail">
+                            <p></p>
+                        </div>
+                        <div class="col-sm-8 col-md-8">
+                            <audio controls="">
+                                <source src="${audio_url}" type="audio/mpeg" />
+                            </audio>
+                        </div>
+                        <div class="col-sm-4 col-md-4">
+                            <button class="btn btn-primary float-right" v-if="value.length === 0"
+                                disabled>Submit</button>
+                            <button class="btn btn-primary float-right" v-else
+                                @click="handleFormSubmit()">Submit</button>
+                        </div>
+                    </div>
+                    <p></p>
+                    <div class="row">
+                        <div class="col">
+                            <template>
+                                <div>
+                                    <b-form-tags input-id="tags-separators" v-model="value" separator=",;"
+                                        placeholder="Enter the event(s)..."></b-form-tags>
+                                </div>
+                            </template>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- <p><textarea name="comment" cols="80" rows="3" required></textarea></p> -->
+        <form name="mturk_form" method="post" id="mturk_form" action="https://www.mturk.com/mturk/externalSubmit">
+            <input type="hidden" value="" name="assignmentId" id="assignmentId" />
+            <input type="hidden" id="eventList" name="events">
+        </form>
+    </div>
+
+    <script language="Javascript">turkSetAssignmentID();</script>
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    newTag: '',
+                    value: [],
+                    src_prefix: "https://sound-events.s3.amazonaws.com/",
+                    examples: [
+                        ["sound0.m4a", "thumbnail0.png", ["music", "speech", "female singing", "child singing"]],
+                        ["sound1.m4a", "thumbnail1.png", ["reversing beeps", "truck", "vehicle"]],
+                        ["sound2.m4a", "thumbnail2.png", ["domestic animals", "pets", "squeak", "dog", "animal"]],
+                    ],
+                    isHelp: false,
+                }
+            },
+            methods: {
+                handleFormSubmit() {
+                    // const urlParams = new URLSearchParams(window.location.search)
+                    // document.getElementById('inputAssignmentId').value = urlParams.get('assignmentId')
+                    document.getElementById('eventList').value = this.value.join("+");
+                    console.log(document.getElementById('eventList').value);
+                    document.getElementById('mturk_form').submit();
+                },
+            }
+        });
+    </script>
+
+    <style>
+        .center-align {
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        .popup {
+            width: 600px;
+            height: 690px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-top: -345px;
+            margin-left: -300px;
+            background-color: darkslateblue;
+            z-index: 1;
+            border: 5px solid gainsboro;
+            font-size: 40px;
+        }
+
+        a.fill-div {
+            display: block;
+            height: 100%;
+            width: 100%;
+            text-decoration: none;
+        }
+
+        div.tag {
+            display: inline-block;
+            width: fit-content;
+            padding: 0 2% 0 2%;
+            border-radius: 4px;
+            background-color: rgb(125, 132, 135);
+            margin: 0 2px 0 2px;
+            font-size: smaller;
+            color: white;
+        }
+
+        div.tag-container {
+            border-radius: 4px;
+            border: 1px;
+            border-style: solid;
+            border-color: rgb(188, 184, 184);
+            padding: 3%;
+        }
+    </style>
+</body>
+
+</html>

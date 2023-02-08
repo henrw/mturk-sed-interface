@@ -1,0 +1,71 @@
+<QuestionForm xmlns='http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd'>  
+  <Question>
+      <QuestionIdentifier>self_report</QuestionIdentifier>
+      <DisplayName>Q1</DisplayName>
+      <IsRequired>true</IsRequired>
+      <QuestionContent>
+        <Text> Have you experienced any of these issues within the last three days? (From: resound.com) </Text>
+        <Text> &#160;- Ring or buzzing sounds (tinnitus) </Text>
+        <Text> &#160;- Pain in one or both ears </Text>
+        <Text> &#160;- One or both ears feel plugged </Text>
+      </QuestionContent>
+      <AnswerSpecification>
+        <SelectionAnswer>
+          <StyleSuggestion>radiobutton</StyleSuggestion>
+          <Selections>
+            <Selection>
+              <SelectionIdentifier>yes</SelectionIdentifier>
+              <Text>Yes</Text>
+            </Selection>
+            <Selection>
+              <SelectionIdentifier>no</SelectionIdentifier>
+              <Text>No</Text>
+            </Selection>
+          </Selections>
+        </SelectionAnswer>
+      </AnswerSpecification>
+  </Question>
+  <Question>
+      <QuestionIdentifier>beep_count</QuestionIdentifier>
+      <DisplayName>Q2</DisplayName>
+      <IsRequired>true</IsRequired>
+      <QuestionContent>
+        <Text> How many beep sound(s) do you hear? </Text>
+        <Binary>
+          <MimeType>
+            <Type>audio</Type>
+            <SubType>mp3</SubType>
+          </MimeType>
+          <DataURL>https://sound-events.s3.amazonaws.com/qualification.mp3</DataURL>
+          <AltText>Beep Sound Sequence</AltText>
+        </Binary>
+      </QuestionContent>
+      <AnswerSpecification>
+        <SelectionAnswer>
+          <StyleSuggestion>radiobutton</StyleSuggestion>
+          <Selections>
+            <Selection>
+              <SelectionIdentifier>0</SelectionIdentifier>
+              <Text>0</Text>
+            </Selection>
+            <Selection>
+              <SelectionIdentifier>1</SelectionIdentifier>
+              <Text>1</Text>
+            </Selection>
+            <Selection>
+              <SelectionIdentifier>2</SelectionIdentifier>
+              <Text>2</Text>
+            </Selection>
+            <Selection>
+              <SelectionIdentifier>3</SelectionIdentifier>
+              <Text>3</Text>
+            </Selection>
+            <Selection>
+              <SelectionIdentifier>4</SelectionIdentifier>
+              <Text>4</Text>
+            </Selection>
+          </Selections>
+        </SelectionAnswer>
+      </AnswerSpecification>
+  </Question>
+</QuestionForm>

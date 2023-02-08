@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.zip
+
+audios/*
+reports/*
+analysis/*
+cache/*
+results/*
+data/*.m4a
+data/*.mp3
+data/*.png
+data/*.wav
+hits_worker.txt
+hits.txt
