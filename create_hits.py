@@ -1,6 +1,7 @@
 import boto3
 import pandas as pd
 import meta
+from agent.results.labels import AI_labels
 
 
 session = boto3.Session()
@@ -15,16 +16,16 @@ user_balance = client.get_account_balance()
 print("Your account balance is {}".format(user_balance['AvailableBalance']))
 
 # Set qualification
-qualification_id = None
+# qualification_id = None
 # qualification_id = "3PHD6OHA9KR85JUB79QM4LWDFBH9WQ"
-# qualification_id = ""
+qualification_id = "38KPZWBG0L8VZAMW7H57M1G5AP38UG"
 
 if qualification_id == "":
     questions = open('templates/qualification_questions.xml', mode='r').read()
     answers = open('templates/qualification_answers.xml', mode='r').read()
 
     qual_response = client.create_qualification_type(
-                        Name='Hearing assessment',
+                        Name='Hearing Assessment',
                         Keywords='test, qualification, hearing',
                         Description='This is a brief hearing test',
                         QualificationTypeStatus='Active',
@@ -32,7 +33,7 @@ if qualification_id == "":
                         AnswerKey=answers,
                         TestDurationInSeconds=60*2)
     qualification_id = qual_response['QualificationType']['QualificationTypeId']
-
+    print(qualification_id)
 # Set hit
 question_html = open("templates/index.html", 'r').read()
 question_xml = f"""
@@ -44,9 +45,9 @@ question_xml = f"""
 """
 
 hit_params = {
-    "MaxAssignments": 20,
-    "LifetimeInSeconds": 60*60*3,
-    "AssignmentDurationInSeconds": 60*60,
+    "MaxAssignments": 25,
+    "LifetimeInSeconds": 60*60*24*30,
+    "AssignmentDurationInSeconds": 60*20,
     "Reward": meta.mturk_environment['reward'],
     "Title": 'Audio Event',
     "Keywords": 'sound, audio, event, research',
@@ -58,14 +59,18 @@ hit_params = {
 
 # Create hits
 hits = []
-
 audio_df = pd.read_csv("data/dev.csv")
 for id, row in audio_df.iterrows():
     file = row["file"]
     labels = [x.strip() for x in row["labels"].split(';')]
+    question_xml_replaced = question_xml.replace(
+        "${sed_img_url}",meta.s3_prefix+file.replace("wav","png")).replace(
+        "${audio_url}", meta.s3_prefix+file).replace(
+        "${img_url}", meta.s3_prefix+file.replace("sound","thumbnail").replace("wav","png")).replace(
+        '["${suggested}"]', '['+','.join([f'\"{x}\"' for x in AI_labels[id+3]])+']')
     response = client.create_hit(
         **hit_params,
-        Question=question_xml.replace("${audio_url}", meta.s3_prefix+file).replace("${img_url}", meta.s3_prefix+file.replace("sound","thumbnail").replace("m4a","png")),
+        Question = question_xml_replaced,
     )
 
     hit_type_id = response['HIT']['HITTypeId']

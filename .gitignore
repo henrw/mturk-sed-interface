@@ -3,6 +3,7 @@ __pycache__/
 *$py.class
 *.zip
 .DS_Store
+.ipynb_checkpoints
 
 audios/*
 reports/*
@@ -15,3 +16,6 @@ data/*.png
 data/*.wav
 hits_worker.txt
 hits.txt
+
+agent/results/*
+agent/Cnn14_DecisionLevelMax_mAP=0.385.pth

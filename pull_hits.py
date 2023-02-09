@@ -4,7 +4,10 @@ import csv
 import meta
 from os import path
 
-hits = [x.strip() for x in open('cache/hits_v1.txt').readlines()]
+hit_file = 'cache/hits.txt'
+out_file = 'results/assignments.csv'
+
+hits = [x.strip() for x in open(hit_file).readlines()]
 print(hits)
 
 client = boto3.client(
@@ -14,11 +17,11 @@ client = boto3.client(
 )
 
 write_header = False
-if not path.exists('assignments_v1.csv'): 
+if not path.exists(out_file): 
     write_header = True
 
-with open('assignments_v1.csv', 'a', newline='') as csvfile:
-    fieldnames = ['AssignmentId', 'WorkerId', 'HITId', 'AutoApprovalTime', 'AcceptTime', 'SubmitTime', 'Answer']
+with open(out_file, 'a', newline='') as csvfile:
+    fieldnames = ['AssignmentId', 'WorkerId', 'HITId', 'AutoApprovalTime', 'AcceptTime', 'SubmitTime', 'Answer', 'IsHint']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     if(write_header): writer.writeheader()
 
@@ -44,7 +47,8 @@ with open('assignments_v1.csv', 'a', newline='') as csvfile:
             # Retrieve the value submitted by the Worker from the XML
             answer_dict = xmltodict.parse(assignment['Answer'])
 
-            answer = answer_dict['QuestionFormAnswers']['Answer']['FreeText']
+            answer = answer_dict['QuestionFormAnswers']['Answer'][0]['FreeText']
+            is_hint = answer_dict['QuestionFormAnswers']['Answer'][1]['FreeText']
             
             # Approve the Assignment (if it hasn't been already)
             if assignment['AssignmentStatus'] == 'Submitted':
@@ -59,4 +63,5 @@ with open('assignments_v1.csv', 'a', newline='') as csvfile:
                                 'AutoApprovalTime': assignment['AutoApprovalTime'],  
                                 'AcceptTime': assignment['AcceptTime'],  
                                 'SubmitTime': assignment['SubmitTime'],  
-                                'Answer': answer})
+                                'Answer': answer,
+                                'IsHint': is_hint})

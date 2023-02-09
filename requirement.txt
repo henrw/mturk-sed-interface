@@ -1,0 +1,7 @@
+boto3
+matplotlib
+soundfile
+librosa
+torch
+torchlibrosa
+h5py
