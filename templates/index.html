@@ -16,108 +16,199 @@
 </head>
 
 <body>
-    <div id="app" style="padding: 5%; width: 850px;">
-
+    <div id="app">
         <!-- Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Audio Event Annotation</h5>
+                        <h4 class="modal-title" id="exampleModalLabel">Audio Event Annotation Instructions</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
+                        <h5>What is the task?</h5>
                         <p>
-                            Please (1) listen to a audio clip and (2) try to write down all the
-                                <strong>events</strong> happened during it.
+                            Please listen to a audio clip and write down all the
+                            events you hear during it.
                         </p>
                         <ul>
                             <li>
-                                An <strong>event</strong> can be anything, such as <em>dog barking, water dribbling, door
+                                An <strong>event</strong> can be anything, such as <em>dog barking, water dribbling,
+                                    door
                                     creaking</em>...
                             </li>
                             <li>
                                 Don't worry about the wording or tense. For example, "dog barks", "dog barking" and
-                            "dog" are all valid answers. Try to be as comprehensive as possible!
+                                "dog" are all valid answers. Try to be as comprehensive as possible!
                             </li>
-                            <li>Feel free to use the thumbnail to get a sense of the context of the audio.</li>
+                            <li>Feel free to use the context image and ask for AI's suggestions.</li>
                         </ul>
-                        <p>Here we provide a few examples:</p>
-                        <div v-for="(example, idx) in examples">
-                            <div class="card">
-                                <div class="card-header">
-                                    Example {{idx+1}}
-                                </div>
-                                <div class="card-body">
-                                    <div class="container">
-                                        <img v-bind:src="src_prefix+example[1]" class="img-thumbnail">
-                                        <audio controls="">
-                                            <source v-bind:src="src_prefix+example[0]" type="audio/mpeg" />
-                                        </audio>
-                                        <div class="tag-container">
-                                            Sample answers:
-                                            <div v-for="text in example[2]" class="tag">{{text}}</div>
+                        <h5>What are some examples?</h5>
+                        <p>The regular UI is shown as follows, where you are provided one audio clip, a corresponding
+                            context image, and a text box to type in your answers:</p>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-6 col-md-6" v-for="(example, idx) in examples.slice(0,2)">
+                                    <div class="card" style="height: 700px">
+                                        <div class="card-header">
+                                            Regular Example {{idx+1}}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="container">
+                                                <img v-bind:src="srcPrefix+example[1]" class="img-thumbnail">
+                                                <p></p>
+                                                <audio controls="">
+                                                    <source v-bind:src="srcPrefix+example[0]" type="audio/mpeg" />
+                                                </audio>
+                                                <p></p>
+                                                <div class="tag-container">
+                                                    Sample answers:
+                                                    <div v-for="text in example[2]" class="tag">{{text}}</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <br>
                         </div>
-                        <p>Need more helps? Please refer to the <a href="https://www.youtube.com/watch?v=F8M9O1cfm10"
-                                target="_blank">demo video</a>.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        <p></p>
+                        <p>However, if you feel some uncertainty here, you can press the button "AI's Suggestions".
+                            Specifically, you will be provided a diagram of the most likely audio events as well as
+                            their timing. <strong>Please use these suggestions wisely (there might be some
+                                errors)!</strong>
+                        </p>
+                        <div class="card" style="height: 500px">
+                            <div class="card-header">
+                                AI-assisted Example
+                            </div>
+                            <div class="card-body">
+                                <div class="container">
+                                    <div class="row align-items-left">
+                                        <div class="col-sm-4 col-md-4">
+                                            <!-- <div class="row align-items-left"> -->
+                                            <p>Audio and context image:</p>
+                                            <img v-bind:src="srcPrefix+examples[2][1]" class="img-thumbnail">
+                                            <p></p>
+                                            <audio controls="">
+                                                <source v-bind:src="srcPrefix+examples[2][0]" type="audio/mpeg" />
+                                            </audio>
+                                            <!-- </div> -->
 
-        <div class="card">
-            <div class="card-header">
-                Please describe the event(s) happened in the following audio.
-                <a href="#" data-toggle="modal" data-target="#exampleModal">[Help?]</a>
-            </div>
-            <div class="card-body">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-sm-12 col-md-12">
-                            <img src="${img_url}" class="img-thumbnail">
-                            <p></p>
-                        </div>
-                        <div class="col-sm-8 col-md-8">
-                            <audio controls="">
-                                <source src="${audio_url}" type="audio/mpeg" />
-                            </audio>
-                        </div>
-                        <div class="col-sm-4 col-md-4">
-                            <button class="btn btn-primary float-right" v-if="value.length === 0"
-                                disabled>Submit</button>
-                            <button class="btn btn-primary float-right" v-else
-                                @click="handleFormSubmit()">Submit</button>
-                        </div>
-                    </div>
-                    <p></p>
-                    <div class="row">
-                        <div class="col">
-                            <template>
-                                <div>
-                                    <b-form-tags input-id="tags-separators" v-model="value" separator=",;"
-                                        placeholder="Enter the event(s)..."></b-form-tags>
+                                        </div>
+                                        <div class="col-sm-8 col-md-8">
+                                            <div class="container">
+                                                <p>Suggested events and locations:</p>
+                                                <div class="row">
+                                                    <div class="col-sm-11 col-md-11">
+                                                        <img v-bind:src="srcPrefix+'sound2.png'" class="img-thumbnail">
+                                                    </div>
+                                                    <div class="col-sm-1 col-md-1 flex-container justify-content-center"
+                                                        style="margin: 16px 0 0 -10px; ;">
+                                                        <template v-for="(label, i) in suggestedLabels">
+                                                            <button @click="addSuggestion(i)"
+                                                                class="btn btn-link btn-sm" disabled>Select</button>
+                                                        </template>
+                                                        <button @click="addSuggestionAll()"
+                                                            class="btn btn-outline-primary btn-sm" disabled>All</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
-                            </template>
+                            </div>
                         </div>
 
+                        <p></p>
+                        <h5>Need more helps?</h5>
+                        <p>Please watch the demo video <a href="https://www.youtube.com/watch?v=F8M9O1cfm10"
+                                target="_blank">[v1]</a> <a href="https://www.youtube.com/watch?v=F8M9O1cfm10"
+                                target="_blank">[v2]</a> for more clarification!</p>
                     </div>
                 </div>
             </div>
         </div>
+        <div style="padding: 5%; width: 1300px;">
+            <div class="card">
+                <div class="card-header">
+                    <h6>Please describe the event(s) happened in the following audio.
+                        <a href="#" data-toggle="modal" data-target="#exampleModal">[Instructions]</a>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="container">
+                        <div class="row align-items-left">
+                            <div class="col-sm-4 col-md-4">
+                                <!-- <div class="row align-items-left"> -->
+                                <p>Audio and context image:</p>
+                                <img src="${img_url}" class="img-thumbnail">
+                                <p></p>
+                                <audio controls="">
+                                    <source src="${audio_url}" type="audio/mpeg" />
+                                </audio>
+                                <!-- </div> -->
 
-        <!-- <p><textarea name="comment" cols="80" rows="3" required></textarea></p> -->
-        <form name="mturk_form" method="post" id="mturk_form" action="https://www.mturk.com/mturk/externalSubmit">
-            <input type="hidden" value="" name="assignmentId" id="assignmentId" />
-            <input type="hidden" id="eventList" name="events">
-        </form>
+                            </div>
+                            <div class="col-sm-8 col-md-8" v-if="isSuggestion">
+                                <div class="container">
+                                    <p>Suggested events and locations:</p>
+                                    <div class="row">
+                                        <div class="col-sm-11 col-md-11">
+                                            <img src="${sed_img_url}" class="img-thumbnail">
+                                        </div>
+                                        <div class="col-sm-1 col-md-1 flex-container justify-content-center"
+                                            style="margin: 16px 0 0 -10px; ;">
+                                            <template v-for="(label, i) in suggestedLabels">
+                                                <button @click="addSuggestion(i)"
+                                                    class="btn btn-link btn-sm">Select</button>
+                                            </template>
+                                            <button @click="addSuggestionAll()"
+                                                class="btn btn-outline-primary btn-sm">All</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <p></p>
+                        <div class="row align-items-left">
+                            <div class="col">
+                                <template>
+                                    <div>
+                                        <b-form-tags input-id="tags-separators" v-model="value" separator=";"
+                                            placeholder="Enter the event(s)..."></b-form-tags>
+                                    </div>
+                                </template>
+                            </div>
+
+                        </div>
+                        <p></p>
+                        <div class="row align-items-right">
+                            <div class="col-sm-12 col-md-12">
+                                <button class="btn btn-primary float-right" v-if="value.length === 0"
+                                    disabled>Submit</button>
+                                <button class="btn btn-primary float-right" v-else
+                                    @click="handleFormSubmit()">Submit</button>
+                                <button @click="isSuggestion = true" class="btn btn-warning float-right"
+                                    style="margin-right: 5px;">AI's Suggestions</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <p><textarea name="comment" cols="80" rows="3" required></textarea></p> -->
+            <form name="mturk_form" method="post" id="mturk_form" action="https://www.mturk.com/mturk/externalSubmit">
+                <input type="hidden" value="" name="assignmentId" id="assignmentId" />
+                <input type="hidden" id="eventList" name="events">
+                <input type="hidden" id="suggestChosen" name="suggest" value="false">
+            </form>
+        </div>
     </div>
 
     <script language="Javascript">turkSetAssignmentID();</script>
@@ -126,15 +217,16 @@
             el: "#app",
             data() {
                 return {
-                    newTag: '',
                     value: [],
-                    src_prefix: "https://sound-events.s3.amazonaws.com/",
+                    isSuggestion: false,
+                    srcPrefix: "https://sound-events.s3.amazonaws.com/",
                     examples: [
-                        ["sound0.m4a", "thumbnail0.png", ["music", "speech", "female singing", "child singing"]],
-                        ["sound1.m4a", "thumbnail1.png", ["reversing beeps", "truck", "vehicle"]],
-                        ["sound2.m4a", "thumbnail2.png", ["domestic animals", "pets", "squeak", "dog", "animal"]],
+                        ["sound0.wav", "thumbnail0.png", ["music", "speech", "female singing", "child singing"]],
+                        ["sound1.wav", "thumbnail1.png", ["reversing beeps", "truck", "vehicle"]],
+                        ["sound2.wav", "thumbnail2.png", ["domestic animals", "pets", "squeak", "dog", "animal"]],
                     ],
                     isHelp: false,
+                    suggestedLabels: ["${suggested}"],
                 }
             },
             methods: {
@@ -142,9 +234,19 @@
                     // const urlParams = new URLSearchParams(window.location.search)
                     // document.getElementById('inputAssignmentId').value = urlParams.get('assignmentId')
                     document.getElementById('eventList').value = this.value.join("+");
-                    console.log(document.getElementById('eventList').value);
+                    if (this.isSuggestion)
+                        document.getElementById('suggestChosen').value = "true";
                     document.getElementById('mturk_form').submit();
                 },
+                addSuggestion(i) {
+                    this.value.push(this.suggestedLabels[i]);
+                    console.log(this.value)
+                },
+                addSuggestionAll() {
+                    this.suggestedLabels.forEach((label, i) => {
+                        this.addSuggestion(i)
+                    });
+                }
             }
         });
     </script>
@@ -153,20 +255,6 @@
         .center-align {
             margin-top: auto;
             margin-bottom: auto;
-        }
-
-        .popup {
-            width: 600px;
-            height: 690px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            margin-top: -345px;
-            margin-left: -300px;
-            background-color: darkslateblue;
-            z-index: 1;
-            border: 5px solid gainsboro;
-            font-size: 40px;
         }
 
         a.fill-div {
@@ -193,6 +281,14 @@
             border-style: solid;
             border-color: rgb(188, 184, 184);
             padding: 3%;
+        }
+
+        div.flex-container {
+            display: flex;
+            margin-left: auto;
+            margin-right: auto;
+            align-items: center;
+            flex-wrap: wrap;
         }
     </style>
 </body>
