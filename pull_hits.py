@@ -4,8 +4,8 @@ import csv
 import meta
 from os import path
 
-hit_file = 'cache/hits.txt'
-out_file = 'results/assignments.csv'
+hit_file = 'cache/hits_v3.txt'
+out_file = 'results/assignments_v3.csv'
 
 hits = [x.strip() for x in open(hit_file).readlines()]
 print(hits)
